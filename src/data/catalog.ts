@@ -299,13 +299,8 @@ export const products: Product[] = [
 ];
 
 export const storeConfig = {
-<<<<<<< HEAD
   name: 'GLADIADORES DOG BURGUER',
   tagline: 'Hot Dogs & Burgers',
-=======
-  name: 'Burguer & Co.',
-  tagline: 'Lanchonete & Quiosque',
->>>>>>> 3a8f1d21b23eb06863bdb971fdead51ef4b91ea9
   whatsapp: '5541999316134',
   hours: 'Ter a Dom · 18h00 — 23h30',
   deliveryFee: 6.0,
