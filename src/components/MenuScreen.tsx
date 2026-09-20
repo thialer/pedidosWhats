@@ -53,11 +53,17 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
           <div className="absolute inset-0 bg-ink-900/55 backdrop-blur-[3px]" />
           <div className="relative mx-auto max-w-3xl px-4 pt-4 pb-3">
             <div className="flex items-center gap-3">
+<<<<<<< HEAD
               <img
                 src="/logo.png"
                 alt="GLADIADORES DOG BURGUER"
                 className="h-12 w-12 rounded-2xl object-cover bg-white/90 shadow-float"
               />
+=======
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-600 text-white shadow-float">
+                <Flame size={24} />
+              </div>
+>>>>>>> 3a8f1d21b23eb06863bdb971fdead51ef4b91ea9
               <div className="min-w-0 flex-1">
                 <h1 className="truncate text-lg font-extrabold leading-tight text-white">
                   {storeConfig.name}
