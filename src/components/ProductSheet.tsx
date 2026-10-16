@@ -96,12 +96,14 @@ export function ProductSheet({
 
       <div className="mt-4 flex items-center justify-between">
         <span className="text-xl font-extrabold text-ink-900">
-          {formatBRL(product.price)}
+          {product.categoryId === 'pizzas' ? `A partir de ${formatBRL(product.price)}` : formatBRL(product.price)}
         </span>
-        <QuantityStepper
-          value={quantity}
-          onChange={(delta) => setQuantity((current) => Math.max(1, current + delta))}
-        />
+        {product.categoryId !== 'pizzas' && (
+          <QuantityStepper
+            value={quantity}
+            onChange={(delta) => setQuantity((current) => Math.max(1, current + delta))}
+          />
+        )}
       </div>
 
       <div className="mt-5 space-y-5">
@@ -109,6 +111,7 @@ export function ProductSheet({
           <GroupBlock
             key={group.id}
             group={group}
+            basePrice={product.price}
             selected={selections[group.id] || []}
             onToggle={(optId) => toggle(group.id, optId, group.type, group.max)}
             isNotes={group.id === 'notes'}
@@ -138,6 +141,7 @@ export function ProductSheet({
 
 function GroupBlock({
   group,
+  basePrice,
   selected,
   onToggle,
   isNotes,
@@ -145,6 +149,7 @@ function GroupBlock({
   onNotes,
 }: {
   group: CustomizationGroup;
+  basePrice: number;
   selected: string[];
   onToggle: (id: string) => void;
   isNotes: boolean;
@@ -204,9 +209,18 @@ function GroupBlock({
                 >
                   {active && <Check size={12} strokeWidth={3} />}
                 </span>
-                <span className="text-sm font-semibold text-ink-900">{opt.name}</span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold text-ink-900">{opt.name}</span>
+                  {opt.description && (
+                    <span className="mt-0.5 block text-xs text-gray-500">{opt.description}</span>
+                  )}
+                </span>
               </div>
-              {opt.price ? (
+              {group.showTotalPrice ? (
+                <span className="shrink-0 text-sm font-bold text-brand-700">
+                  {formatBRL(basePrice + (opt.price ?? 0))}
+                </span>
+              ) : opt.price ? (
                 <span className="text-sm font-bold text-brand-700">
                   + {formatBRL(opt.price)}
                 </span>

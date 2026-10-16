@@ -299,11 +299,11 @@ export const products: Product[] = [
 ];
 
 export const storeConfig = {
-  name: 'Burguer & Co.',
+  name: 'GLADIADORES DOG BURGUER.',
   tagline: 'Lanchonete & Quiosque',
   whatsapp: '5541999316134',
   hours: 'Ter a Dom · 18h00 — 23h30',
   deliveryFee: 6.0,
   estimatedDelivery: '30–45 min',
-  address: 'Av. Central, 1200 — Centro',
+  address: 'Av. Brasil, 923 — Eucaliptos, Fazenda Rio Grande - PR',
 };

@@ -104,6 +104,14 @@ export function computeUnitPrice(
   let price = product.price;
   for (const group of groups) {
     const chosen = selections[group.id] || [];
+    if (group.showTotalPrice && chosen.length > 0) {
+      const flavorPrices = chosen.map((optId) => {
+        const opt = group.options.find((o) => o.id === optId);
+        return product.price + (opt?.price ?? 0);
+      });
+      price = flavorPrices.reduce((sum, flavorPrice) => sum + flavorPrice, 0);
+      continue;
+    }
     for (const optId of chosen) {
       const opt = group.options.find((o) => o.id === optId);
       if (opt?.price) price += opt.price;
@@ -126,6 +134,8 @@ export function summarizeSelections(
       .filter(Boolean) as string[];
     if (group.id === 'remove') {
       lines.push(`Sem ${names.join(', ')}`);
+    } else if (group.id === 'flavor') {
+      lines.push(`Sabores: ${names.join(' + ')}`);
     } else if (group.type === 'single') {
       lines.push(`${group.title}: ${names[0]}`);
     } else {

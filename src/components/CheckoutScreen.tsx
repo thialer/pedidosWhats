@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, CheckCircle2, Send } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, MessageCircle, Send } from 'lucide-react';
 import { useCart, formatBRL } from '../cart/CartContext';
 import { storeConfig } from '../data/catalog';
 import { buildWhatsAppMessage, whatsappLink, type CheckoutData } from '../cart/whatsapp';
@@ -26,6 +26,7 @@ export function CheckoutScreen({ onBack }: Props) {
   const { items, subtotal, clear } = useCart();
   const [form, setForm] = useState<CheckoutData>(empty);
   const [sent, setSent] = useState(false);
+  const [waLink, setWaLink] = useState('');
 
   const set = (k: keyof CheckoutData, v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -46,7 +47,9 @@ export function CheckoutScreen({ onBack }: Props) {
       form,
       needsAddress ? storeConfig.deliveryFee : 0,
     );
-    window.open(whatsappLink(message), '_blank');
+    const link = whatsappLink(message);
+    setWaLink(link);
+    window.open(link, '_blank');
     setSent(true);
   };
 
@@ -56,19 +59,52 @@ export function CheckoutScreen({ onBack }: Props) {
         <div className="grid h-24 w-24 place-items-center rounded-full bg-brand-100 animate-pop">
           <CheckCircle2 size={52} className="text-brand-600" />
         </div>
-        <h2 className="mt-6 text-2xl font-extrabold text-ink-900">Você será encaminhado ao WhatsApp!</h2>
+        <h2 className="mt-6 text-2xl font-extrabold text-ink-900">
+          Último passo: envie no WhatsApp
+        </h2>
         <p className="mt-2 max-w-xs text-gray-500">
-          Envie a mensagem automática do seu pedido para finalizar com a {storeConfig.name}.
+          O seu pedido para a {storeConfig.name} está pronto. É só tocar em{' '}
+          <strong className="text-ink-900">Enviar</strong> na conversa do WhatsApp.
         </p>
-        <button
-          onClick={() => {
-            clear();
-            onBack();
-          }}
-          className="mt-8 rounded-2xl bg-brand-600 px-8 py-3.5 font-bold text-white shadow-float transition active:scale-95 hover:bg-brand-700"
-        >
-          Novo pedido
-        </button>
+
+        <ol className="mt-5 w-full max-w-xs space-y-3 rounded-2xl bg-gray-50 p-4 text-left text-sm text-gray-700">
+          <li className="flex gap-3">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-bold text-white">1</span>
+            <span>Abra o WhatsApp (a mensagem do pedido já está pronta).</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-bold text-white">2</span>
+            <span>
+              Toque no botão <strong>Enviar</strong> (seta verde) para a loja receber o seu pedido.
+            </span>
+          </li>
+        </ol>
+
+        <p className="mt-4 max-w-xs text-xs text-gray-500">
+          Já enviou? Então é só aguardar, a loja vai te responder pelo WhatsApp.
+        </p>
+
+        <div className="mt-5 w-full max-w-xs space-y-3">
+          <a
+            href={waLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-6 py-4 font-bold text-white shadow-float transition active:scale-95 hover:bg-brand-700"
+          >
+            <MessageCircle size={20} />
+            Abrir WhatsApp novamente
+          </a>
+
+          <button
+            onClick={() => {
+              clear();
+              onBack();
+            }}
+            className="w-full rounded-2xl border-2 border-brand-600 bg-white px-6 py-3.5 font-bold text-brand-700 transition active:scale-95 hover:bg-brand-50"
+          >
+            Já enviei, fazer novo pedido
+          </button>
+        </div>
       </div>
     );
   }
@@ -84,7 +120,7 @@ export function CheckoutScreen({ onBack }: Props) {
 
       <h1 className="text-2xl font-extrabold text-ink-900">Finalizar pedido</h1>
       <p className="mt-1 text-sm text-gray-500">
-        Preencha seus dados — o pedido é enviado pelo WhatsApp.
+        Preencha seus dados. Na próxima etapa o pedido abre pronto no WhatsApp e você só precisa tocar em Enviar.
       </p>
 
       {/* Delivery mode */}
@@ -196,13 +232,17 @@ export function CheckoutScreen({ onBack }: Props) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-lg border-t border-gray-100 bg-white/95 px-4 py-3 pb-safe backdrop-blur">
+        <p className="mb-2 text-center text-xs text-gray-500">
+          Você será levado ao WhatsApp da loja com o pedido pronto.{' '}
+          <strong className="text-ink-900">Toque em Enviar lá para concluir.</strong>
+        </p>
         <button
           onClick={finish}
           disabled={!valid}
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-600 px-5 py-4 text-base font-bold text-white shadow-float transition active:scale-[0.98] hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
         >
           <Send size={18} />
-          Finalizar pedido · {formatBRL(total)}
+          Enviar pedido pelo WhatsApp · {formatBRL(total)}
         </button>
       </div>
     </div>

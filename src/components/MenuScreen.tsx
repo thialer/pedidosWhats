@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, Clock, MapPin, ShoppingBag, Flame, Star } from 'lucide-react';
 import { categories, products, storeConfig, type Product } from '../data/catalog';
 import { ProductCard } from './ProductCard';
@@ -14,8 +14,45 @@ interface Props {
 export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavorite }: Props) {
   const { count, subtotal } = useCart();
   const [query, setQuery] = useState('');
-  const [activeCat, setActiveCat] = useState('burgers');
+  const [activeCat, setActiveCat] = useState('pizzas');
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    let frame = 0;
+    const updateActiveCategory = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const activationLine = (headerRef.current?.getBoundingClientRect().bottom ?? 180) + 12;
+        const visibleSections = categories
+          .map((category) => ({
+            id: category.id,
+            element: sectionRefs.current[category.id],
+          }))
+          .filter((section): section is { id: string; element: HTMLElement } => Boolean(section.element));
+
+        if (visibleSections.length === 0) return;
+
+        const current = visibleSections.reduce((active, section) => {
+          return section.element.getBoundingClientRect().top <= activationLine
+            ? section
+            : active;
+        }, visibleSections[0]);
+
+        setActiveCat(current.id);
+      });
+    };
+
+    window.addEventListener('scroll', updateActiveCategory, { passive: true });
+    window.addEventListener('resize', updateActiveCategory);
+    updateActiveCategory();
+
+    return () => {
+      window.removeEventListener('scroll', updateActiveCategory);
+      window.removeEventListener('resize', updateActiveCategory);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
 
   const filtered = useMemo(() => {
     if (!query.trim()) return products;
@@ -23,7 +60,12 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
     return products.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q),
+        p.description.toLowerCase().includes(q) ||
+        p.customizations?.some((group) =>
+          group.options.some((option) =>
+            `${option.name} ${option.description ?? ''}`.toLowerCase().includes(q),
+          ),
+        ),
     );
   }, [query]);
 
@@ -35,7 +77,11 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
 
   const scrollToCat = (catId: string) => {
     setActiveCat(catId);
-    sectionRefs.current[catId]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const section = sectionRefs.current[catId];
+    if (!section) return;
+    const headerHeight = headerRef.current?.getBoundingClientRect().height ?? 0;
+    const top = window.scrollY + section.getBoundingClientRect().top - headerHeight - 12;
+    window.scrollTo({ top, behavior: 'smooth' });
   };
 
   const open = true; // store open status — could be time-based
@@ -43,7 +89,7 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
   return (
     <div className="pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-30 shadow-soft">
+      <header className="shadow-soft">
         <div className="relative overflow-hidden">
           <img
             src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200"
@@ -95,35 +141,35 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
           </div>
         </div>
         </div>
+      </header>
 
-        {/* Category chips */}
-        {!query && (
-          <div className="bg-white/95 backdrop-blur-md">
-            <div className="no-scrollbar mx-auto max-w-3xl overflow-x-auto px-4 pb-3 pt-3">
-              <div className="flex gap-2">
+      {/* Category chips */}
+      {!query && (
+        <div ref={headerRef} className="sticky top-0 z-30 bg-white/95 shadow-soft backdrop-blur-md">
+            <div className="mx-auto max-w-3xl px-4 py-2.5">
+              <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-5 sm:gap-2">
                 {categories.map((c) => (
                   <button
                     key={c.id}
                     onClick={() => scrollToCat(c.id)}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition active:scale-95 ${
+                    className={`flex min-h-9 items-center justify-center gap-1 rounded-xl px-2 py-1.5 text-center text-[11px] font-semibold leading-tight transition active:scale-[0.98] sm:rounded-full sm:px-2.5 sm:text-xs ${
                       activeCat === c.id
                         ? 'bg-ink-900 text-white shadow-soft'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <span>{c.emoji}</span>
-                  {c.name}
+                  <span aria-hidden="true">{c.emoji}</span>
+                  <span className="line-clamp-2">{c.name}</span>
                 </button>
               ))}
             </div>
           </div>
-          </div>
-        )}
-      </header>
+        </div>
+      )}
 
       <div className="mx-auto max-w-3xl px-4">
         {/* Popular section */}
-        {!query && (
+        {!query && popular.length > 0 && (
           <section className="mt-6">
             <div className="mb-3 flex items-center gap-2">
               <Star size={18} className="fill-accent-500 text-accent-500" />
@@ -201,7 +247,7 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
                 ref={(el) => {
                   sectionRefs.current[cat.id] = el;
                 }}
-                className="mt-8 scroll-mt-32"
+                className="mt-8"
               >
                 <h2 className="mb-3 flex items-center gap-2 text-lg font-extrabold text-ink-900">
                   <span>{cat.emoji}</span>

@@ -34,6 +34,16 @@ export function CartDrawer({ open, onClose, onContinue, onEdit }: Props) {
                 item.selections,
                 item.product.customizations,
               );
+              const selectedFlavorIds = item.selections.flavor ?? [];
+              const selectedFlavors = item.product.customizations
+                ?.find((group) => group.id === 'flavor')
+                ?.options.filter((option) => selectedFlavorIds.includes(option.id));
+              const flavorDescriptions = selectedFlavors
+                ?.map((flavor) => flavor.description)
+                .filter(Boolean);
+              const description = flavorDescriptions?.length
+                ? flavorDescriptions.join(' · ')
+                : item.product.description;
               return (
                 <div
                   key={item.uid}
@@ -57,6 +67,9 @@ export function CartDrawer({ open, onClose, onContinue, onEdit }: Props) {
                         <Trash2 size={15} />
                       </button>
                     </div>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">
+                      {description}
+                    </p>
                     {sum.length > 0 && (
                       <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">
                         {sum.join(' · ')}

@@ -52,6 +52,9 @@ export function ProductCard({ product, onAdd, isFavorite, onToggleFavorite }: Pr
         </p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
           <span className="text-lg font-extrabold text-ink-900">
+            {(product.categoryId === 'pizzas' || product.customizations?.some((group) => group.id === 'size')) && (
+              <span className="mr-1 text-xs font-semibold text-gray-500">A partir de</span>
+            )}
             {formatBRL(product.price)}
           </span>
           <button

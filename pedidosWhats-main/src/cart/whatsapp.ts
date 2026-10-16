@@ -22,7 +22,6 @@ export function buildWhatsAppMessage(
   deliveryFee: number,
 ): string {
   const lines: string[] = [];
-  lines.push('═══════════════════════════════════');
   lines.push('NOVO PEDIDO - ' + storeConfig.name);
   lines.push('═══════════════════════════════════');
   lines.push('');
@@ -87,7 +86,6 @@ export function buildWhatsAppMessage(
 
   lines.push('═══════════════════════════════════');
   lines.push('Aguardando confirmação!');
-  lines.push('═══════════════════════════════════');
 
   return lines.join('\n');
 }
