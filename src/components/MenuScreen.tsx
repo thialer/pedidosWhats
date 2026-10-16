@@ -92,7 +92,7 @@ export function MenuScreen({ onAddProduct, onOpenCart, favorites, onToggleFavori
       <header className="shadow-soft">
         <div className="relative overflow-hidden">
           <img
-            src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1200"
+            src="/plano.jpg"
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />
